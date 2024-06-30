@@ -26,13 +26,16 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Data
 public class SecurityConfig {
 
+        @Autowired
         private final PasswordEncoder passwordEncoder;
-        private final UserDetailsServiceImpl userDetailsService;
 
         @Autowired
-        public SecurityConfig(PasswordEncoder passwordEncoder, UserDetailsServiceImpl userDetailsService) {
+        private final UserDetailsServiceImpl userDetailsServiceImpl;
+
+        @Autowired
+        public SecurityConfig(PasswordEncoder passwordEncoder, UserDetailsServiceImpl userDetailsServiceImpl) {
                 this.passwordEncoder = passwordEncoder;
-                this.userDetailsService = userDetailsService;
+                this.userDetailsServiceImpl = userDetailsServiceImpl;
         }
 
         @Bean
@@ -47,7 +50,7 @@ public class SecurityConfig {
                         .csrf(AbstractHttpConfigurer::disable)
                         .cors(CorsConfigurer::disable)
                         .authorizeHttpRequests(auth -> auth
-                                .requestMatchers("/auth/v1/login", "/auth/v1/signup", "/auth/v1/refreshToken", "/auth/v1/signup").permitAll()
+                                .requestMatchers("/auth/v1/login", "/auth/v1/signup", "/auth/v1/refreshToken").permitAll()
                                 .anyRequest().authenticated()
                         )
                         .sessionManagement(sess -> sess.sessionCreationPolicy((SessionCreationPolicy.STATELESS)))
@@ -60,7 +63,7 @@ public class SecurityConfig {
         @Bean
         protected AuthenticationProvider authenticationProvider() {
             DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-            authenticationProvider.setUserDetailsService(userDetailsService);
+            authenticationProvider.setUserDetailsService(userDetailsServiceImpl);
             authenticationProvider.setPasswordEncoder(passwordEncoder);
             return authenticationProvider;
 
