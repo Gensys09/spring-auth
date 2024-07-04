@@ -19,6 +19,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+// used when @Data annotates a class not extending Object
 @EqualsAndHashCode(callSuper = true)
 @Component
 @AllArgsConstructor
@@ -31,6 +32,14 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain)
             throws ServletException, IOException {
+
+        System.out.println("JwtAuthFilter.doFilterInternal for request: " + request.getRequestURI());
+        String requestPath = request.getRequestURI();
+        if (requestPath.equals("/auth/v1/signup")) {
+            System.out.println("Skipping authentication for /auth/v1/signup");
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         String authHeader = request.getHeader("Authorization"); // other headers include - Content-Type, Accept
         String token = null;
@@ -53,6 +62,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
+        System.out.println("JwtAuthFilter.doFilterInternal completed for request: " + request.getRequestURI());
+
     }
 
 

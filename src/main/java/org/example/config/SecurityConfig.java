@@ -1,22 +1,19 @@
 package org.example.config;
 
 import lombok.Data;
-import org.example.repository.UserRepository;
 import org.example.service.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.CorsConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -26,52 +23,41 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Data
 public class SecurityConfig {
 
-        @Autowired
+        private final UserDetailsServiceImpl userDetailsServiceImpl;
         private final PasswordEncoder passwordEncoder;
 
         @Autowired
-        private final UserDetailsServiceImpl userDetailsServiceImpl;
-
-        @Autowired
-        public SecurityConfig(PasswordEncoder passwordEncoder, UserDetailsServiceImpl userDetailsServiceImpl) {
-                this.passwordEncoder = passwordEncoder;
+        public SecurityConfig(UserDetailsServiceImpl userDetailsServiceImpl, PasswordEncoder passwordEncoder) {
                 this.userDetailsServiceImpl = userDetailsServiceImpl;
-        }
-
-        @Bean
-        @Autowired
-        public UserDetailsService userDetailsService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
-                return new UserDetailsServiceImpl(userRepository, passwordEncoder);
+                this.passwordEncoder = passwordEncoder;
         }
 
         @Bean
         public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthFilter jwtAuthFilter) throws Exception {
+
                 return http
-                        .csrf(AbstractHttpConfigurer::disable)
-                        .cors(CorsConfigurer::disable)
+                        .csrf(AbstractHttpConfigurer::disable).cors(CorsConfigurer::disable)
                         .authorizeHttpRequests(auth -> auth
-                                .requestMatchers("/auth/v1/login", "/auth/v1/signup", "/auth/v1/refreshToken").permitAll()
+                                .requestMatchers("/auth/v1/login", "/auth/v1/refreshToken", "/auth/v1/signup").permitAll()
                                 .anyRequest().authenticated()
                         )
-                        .sessionManagement(sess -> sess.sessionCreationPolicy((SessionCreationPolicy.STATELESS)))
-                        .httpBasic(Customizer.withDefaults())
+                        .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                         .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                        .authenticationProvider(authenticationProvider())
                         .build();
         }
 
-        @Bean
-        protected AuthenticationProvider authenticationProvider() {
-            DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-            authenticationProvider.setUserDetailsService(userDetailsServiceImpl);
-            authenticationProvider.setPasswordEncoder(passwordEncoder);
-            return authenticationProvider;
 
+//       could have used authenticationProvider(authProvider)
+        @Autowired
+        public void configure(AuthenticationManagerBuilder auth) throws Exception {
+                DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+                authProvider.setUserDetailsService(userDetailsServiceImpl);
+                authProvider.setPasswordEncoder(passwordEncoder);
+                auth.authenticationProvider(authProvider);
         }
 
         @Bean
         public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
                 return config.getAuthenticationManager();
         }
-
 }

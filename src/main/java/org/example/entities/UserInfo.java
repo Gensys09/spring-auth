@@ -5,12 +5,14 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
 @Data
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "users")
@@ -18,12 +20,10 @@ public class UserInfo {
 
     @Id
     @Column(name = "user_id")
-    private Long userid;
+    private String userid;
 
-    //@Column(name = "user_name")
     private String username;
 
-    //@Column(name = "password")
     private String password;
 
     @ManyToMany(fetch = FetchType.EAGER)
@@ -35,9 +35,11 @@ public class UserInfo {
 
     private Set<UserRole> roles = new HashSet<>();
 
-    //subject to change
+
     public UserInfo(String userId, String username, String password, HashSet<UserRole> roles) {
-
-
+        this.userid = userId;
+        this.username = username;
+        this.password = password;
+        this.roles = roles;
     }
 }
