@@ -20,9 +20,7 @@ public class JwtService {
 
     public String extractUsername(String token) {return extractClaim(token, Claims::getSubject);}
 
-    public Date extractExpiration(String token) {
-        return extractClaim(token, Claims::getExpiration);
-    }
+    public Date extractExpiration(String token) {return extractClaim(token, Claims::getExpiration);}
 
     public Boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
@@ -35,7 +33,7 @@ public class JwtService {
 
     public String createToken(Map<String, Object> claims, String username)
     {
-        int tokenValidity = 1000 * 60;
+        int tokenValidity = 1000 * 60; // 1 minute
         return Jwts.builder()
                 .claims(claims)
                 .subject(username)
@@ -45,6 +43,7 @@ public class JwtService {
                 .compact();
     }
 
+    //using T as a generic type to return any type of object
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver)
     {
         final Claims claims = extractAllClaims(token);

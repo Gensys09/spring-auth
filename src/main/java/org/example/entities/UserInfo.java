@@ -35,11 +35,4 @@ public class UserInfo {
 
     private Set<UserRole> roles = new HashSet<>();
 
-
-    public UserInfo(String userId, String username, String password, HashSet<UserRole> roles) {
-        this.userid = userId;
-        this.username = username;
-        this.password = password;
-        this.roles = roles;
-    }
 }

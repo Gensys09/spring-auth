@@ -63,7 +63,6 @@ public class UserDetailsServiceImpl implements UserDetailsService
         }
         String userId = UUID.randomUUID().toString();
         userRepository.save(new UserInfo(userId, userInfoDto.getUsername(), userInfoDto.getPassword(), new HashSet<>()));
-        // pushEventToQueue
         return true;
     }
 }

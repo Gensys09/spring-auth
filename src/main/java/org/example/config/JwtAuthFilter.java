@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.example.service.JwtService;
 import org.example.service.UserDetailsServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,7 +27,9 @@ import java.io.IOException;
 @Data
 public class JwtAuthFilter extends OncePerRequestFilter {
 
+    @Autowired
     private final JwtService jwtService;
+    @Autowired
     private final UserDetailsServiceImpl userDetailsService;
 
     @Override

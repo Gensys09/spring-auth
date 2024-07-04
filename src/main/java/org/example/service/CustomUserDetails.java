@@ -12,11 +12,14 @@ import java.util.List;
 
 public class CustomUserDetails extends UserInfo implements UserDetails {
 
+    private String username;
+    private String password;
+
     Collection<? extends GrantedAuthority>  authorities;
 
     public CustomUserDetails(UserInfo byUsername) {
-        String username = byUsername.getUsername();
-        String password = byUsername.getPassword();
+        this.username = byUsername.getUsername();
+        this.password = byUsername.getPassword();
         List<GrantedAuthority> auths = new ArrayList<>();
         
         for(UserRole role : byUsername.getRoles()) {
@@ -32,32 +35,32 @@ public class CustomUserDetails extends UserInfo implements UserDetails {
 
     @Override
     public String getUsername() {
-        return super.getUsername();
+        return username;
     }
 
     @Override
     public String getPassword() {
-        return super.getPassword();
+        return password;
     }
 
     @Override
     public boolean isAccountNonExpired() {
-        return UserDetails.super.isAccountNonExpired();
+        return true;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return UserDetails.super.isAccountNonLocked();
+        return true;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return UserDetails.super.isCredentialsNonExpired();
+        return true;
     }
 
     @Override
     public boolean isEnabled() {
-        return UserDetails.super.isEnabled();
+        return true;
     }
 
 
